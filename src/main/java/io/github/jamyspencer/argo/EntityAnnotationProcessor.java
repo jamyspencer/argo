@@ -24,7 +24,7 @@ public interface EntityAnnotationProcessor<T> {
                 columnHelpers.add(new ColumnHelper<T>(property));
             }
         });
-        return new FieldData<T>(columnHelpers, relationColumnHelpers);
+        return new FieldData<T>(columnHelpers, relationColumnHelpers, processRelationData(beanIntrospection));
     }
 
     default String getTableName(BeanIntrospection<T> beanIntrospection, Class<T> beanClass){

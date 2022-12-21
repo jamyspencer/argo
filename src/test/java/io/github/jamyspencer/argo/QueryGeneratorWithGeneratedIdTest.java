@@ -41,6 +41,21 @@ class QueryGeneratorWithGeneratedIdTest {
         String expected = "UPDATE " + tableName + " SET ";
         assertEquals(expected, value);
     }
+
+    @Test
+    void getBatchInsertQuery() {
+        String base = "INSERT INTO " + tableName + " (something,cost) VALUES ";
+        String value = underTest.getBatchInsertQuery(base, "(?,?)", 3);
+        String expected = base + "(?,?),(?,?),(?,?)";
+        assertEquals(expected, value);
+    }
+
+    @Test
+    void generateInsertParameters() {
+        String value = underTest.generateInsertParameters(fieldData);
+        String expected = "(?,?)";
+        assertEquals(expected, value);
+    }
     class QueryGeneratorImpl implements QueryGenerator<TestGeneratedIdEntity>{
 
     }

@@ -1,6 +1,7 @@
 package io.github.jamyspencer.argo;
 
 import io.micronaut.context.*;
+import io.micronaut.core.annotation.Introspected;
 import io.micronaut.core.beans.BeanIntrospection;
 import io.micronaut.core.beans.BeanProperty;
 import jakarta.inject.Inject;
@@ -12,11 +13,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
+@Introspected
 public abstract class BaseRepository<T> extends DataCloser implements QueryGenerator<T>, EntityAnnotationProcessor<T>{
     @Inject
     ApplicationContext applicationContext;
     private BeanIntrospection<T> beanIntrospection;
-    private final RelationData relationData;
     private final FieldData<T> fieldData;
     private String tableName;
     private final String baseInsertQuery;
@@ -26,9 +27,8 @@ public abstract class BaseRepository<T> extends DataCloser implements QueryGener
         beanIntrospection = BeanIntrospection.getIntrospection(entityType);
         fieldData = processEntityData(beanIntrospection);
         tableName = getTableName(beanIntrospection, entityType);
-        relationData = processRelationData(beanIntrospection);
-        baseInsertQuery = generateBaseInsertQuery(tableName, fieldData.columnHelpers(), relationData.foreignKey());
-        insertParameters = generateInsertParameters(fieldData,relationData);
+        baseInsertQuery = generateBaseInsertQuery(tableName, fieldData.columnHelpers(), fieldData.relationData().foreignKey());
+        insertParameters = generateInsertParameters(fieldData);
     }
     public List<T> find() {
         return null;
@@ -51,7 +51,7 @@ public abstract class BaseRepository<T> extends DataCloser implements QueryGener
     }
     public void save(Connection con, Collection<T> payload) throws SQLException{
         String query = getBatchInsertQuery(baseInsertQuery, insertParameters, payload.size());
-        runBatchedQuery(con, query, payload, relationData.foreignKey());
+        runBatchedQuery(con, query, payload, fieldData.relationData().foreignKey());
         runChildQueries(con, payload);
     }
     public void save(Connection con, Map<Object, Collection<T>> payload) throws SQLException{
@@ -171,6 +171,7 @@ public abstract class BaseRepository<T> extends DataCloser implements QueryGener
                 }
             }
         }
+        log.info("{}", ps);
     }
     public void populateBatchPreparedStatement(PreparedStatement ps, Collection<T> payload, Object fk) throws SQLException{
         populateBatchPreparedStatement( ps, payload, 0, fk);

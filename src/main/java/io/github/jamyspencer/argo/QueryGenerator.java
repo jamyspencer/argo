@@ -42,13 +42,13 @@ public interface QueryGenerator<T> {
         return "UPDATE " + tableName + " SET ";
     }
 
-    default String generateInsertParameters(FieldData fieldData, RelationData relationData){
+    default String generateInsertParameters(FieldData fieldData){
         StringBuilder builder = new StringBuilder("(");
-        int num = fieldData.numberOfInsertColumns();
-        if (relationData.foreignKey() != null) num++;
-        for (;num > 0; num--) builder.append("?,");
+        for (int num = fieldData.numberOfInsertColumns();num > 0; num--) {
+            builder.append("?,");
+        }
         builder.deleteCharAt(builder.length()-1);
-        builder.append("),");
+        builder.append(")");
         return builder.toString();
     }
 
