@@ -1,5 +1,9 @@
 package io.github.jamyspencer.argo.annotations;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Target;
+
+@Target({ElementType.TYPE})
 public @interface RelationMapping {
     /**
      * foreignKey is a value NOT in the Entity. In a One-To-One
