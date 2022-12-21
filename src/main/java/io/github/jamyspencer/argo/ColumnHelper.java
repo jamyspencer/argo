@@ -3,7 +3,7 @@ package io.github.jamyspencer.argo;
 import io.micronaut.core.annotation.AnnotationValue;
 import io.micronaut.core.beans.BeanProperty;
 
-import javax.annotation.processing.Generated;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -55,16 +55,15 @@ public class ColumnHelper<T> {
     }
     private ColumnType parseType(BeanProperty<T, Object> beanProperty){
         AnnotationValue<Id> id = beanProperty.getAnnotationMetadata().getAnnotation(Id.class);
-        AnnotationValue<Generated> generated = beanProperty.getAnnotationMetadata().getAnnotation(Generated.class);
+        AnnotationValue<GeneratedValue> generatedValue = beanProperty.getAnnotationMetadata().getAnnotation(GeneratedValue.class);
 
-        ColumnType type = ColumnType.PROPERTY;
         if (id != null) {
-            if (generated != null) {
-                type = ColumnType.GENERATED_ID;
+            if (generatedValue != null) {
+                return ColumnType.GENERATED_ID;
             }
-            type = ColumnType.ID;
+            return ColumnType.ID;
         }
-        return type;
+        return ColumnType.PROPERTY;
     }
     private FunctionalParameterSetter<T> generateFunctionalParameterSetter(BeanProperty<T, Object> property){
         if (String.class.equals(property.getType())) {
